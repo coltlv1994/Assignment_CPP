@@ -21,6 +21,8 @@ ASnakePawn::ASnakePawn()
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponent"));
 
 	CollisionComponent->SetupAttachment(RootComponent);
+
+	this->SetActorTickEnabled(false);
 }
 
 // Called when the game starts or when spawned
@@ -46,7 +48,7 @@ void ASnakePawn::Tick(float DeltaTime)
 				// set new direction
 				// note: this list is in reverse order for performance concern
 				// we read and remove from last
-				Tile& destinationTile = *m_destinationTileList.back();
+				Tile& destinationTile = *(m_destinationTileList.back());
 				int tile_x = 0;
 				int tile_y = 0;
 				destinationTile.GetTileLocation(tile_x, tile_y);
@@ -85,9 +87,6 @@ void ASnakePawn::Tick(float DeltaTime)
 					m_direction = Direction::Left;
 					//return;
 				}
-
-				m_destinationTileList.pop_back();
-
 			}
 		}
 	}
@@ -186,6 +185,10 @@ void ASnakePawn::HandleGround(FVector& p_position, float p_deltaTime)
 		{
 			// AI has no direction cache; it will calculate in next tick
 			m_direction = Direction::None;
+			if (!m_destinationTileList.empty())
+			{
+				m_destinationTileList.pop_back();
+			}
 		}
 	}
 
@@ -223,7 +226,7 @@ void ASnakePawn::SetAIControlled(bool p_isAIControlled)
 
 void ASnakePawn::Score()
 {
-	currentScore += 1;
+	//currentScore += 1; // for debug this can be disabled
 	if (currentScore >= maxScore)
 	{
 		// next level

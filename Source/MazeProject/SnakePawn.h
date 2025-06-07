@@ -64,7 +64,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetDirection(Direction p_direction);
 
-	std::vector<Tile*> m_destinationTileList;
+	std::vector<Tile*> m_destinationTileList = std::vector<Tile*>();
 
 	void SetDestinationTileList(std::vector<Tile*>& p_route);
 

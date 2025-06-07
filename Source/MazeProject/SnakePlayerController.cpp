@@ -38,6 +38,8 @@ void ASnakePlayerController::SetDirection(Direction p_direction)
 		isPlayer2Initialized = true;
 		m_snakePawn1->SetWorldActor(snakeWorld);
 		m_snakePawn2->SetWorldActor(snakeWorld);
+		m_snakePawn1->SetActorTickEnabled(true);
+		m_snakePawn2->SetActorTickEnabled(true);
 
 		if (m_snakePawn2->isAIControlled == true)
 		{
@@ -325,7 +327,12 @@ void A_Asterik_Algorithm::FindPath(int XTILES, int YTILES, int STARTX, int START
 		tailIndex = m_gameMap[tailIndex].m_parent;
 	}
 
+	// push current node to destination
+	// floating point numbers have precision issue and it may cause unwanted bugs
+	m_foundPath.push_back(STARTX + STARTY * XTILES);
+
 	// A* algorithm needs to reverse the path.
 	// But we store the path in a vector, performance-wise we should read and remove from the last
+	// it looks like: end -> waynode_n -> waynode_(n-1) -> ... -> start -> (an additional start to make sure this does not bug)
 	//std::reverse(m_foundPath.begin(), m_foundPath.end());
 }

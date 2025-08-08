@@ -32,7 +32,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere) 
 	UInstancedStaticMeshComponent* m_instancedWalls_p;
 
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UBoxComponent* m_collisionBox;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

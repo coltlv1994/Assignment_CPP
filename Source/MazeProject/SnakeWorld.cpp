@@ -23,6 +23,9 @@ ASnakeWorld::ASnakeWorld()
 
 	m_collisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	m_collisionBox->SetupAttachment(m_instancedWalls_p);
+
+	//FVector collisionBoxExtent = m_collisionBox->GetUnscaledBoxExtent();
+	//m_collisionBox->SetBoxExtent(collisionBoxExtent * 0.9);
 	//m_collisionBox
 }
 

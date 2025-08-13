@@ -14,6 +14,7 @@ ASnakePawn::ASnakePawn()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
 
@@ -22,8 +23,6 @@ ASnakePawn::ASnakePawn()
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponent"));
 
 	CollisionComponent->SetupAttachment(RootComponent);
-
-	this->SetActorTickEnabled(false);
 }
 
 // Called when the game starts or when spawned
@@ -46,8 +45,6 @@ void ASnakePawn::Tick(float DeltaTime)
 		{
 			if (m_direction == Direction::None)
 			{
-				// Check apple location
-
 				// set new direction
 				// note: this list is in reverse order for performance concern
 				// we read and remove from last
@@ -95,6 +92,11 @@ void ASnakePawn::Tick(float DeltaTime)
 				{
 					nextBodyPart->SetDirection(m_nextDirection); // read from AI cache
 				}
+			}
+			else
+			{
+				// destination ls empty
+
 			}
 		}
 	}
@@ -364,4 +366,16 @@ Direction ASnakePawn::GetBodyPartTile(int& x, int& y)
 void ASnakePawn::EnableWallHit()
 {
 	isWallCollisionEnabled = true;
+}
+
+void ASnakePawn::ResetBodyPart()
+{
+	if (IsValid(nextBodyPart))
+	{
+		nextBodyPart->SelfDestroy();
+	}
+	else
+	{
+		nextBodyPart->Destroy();
+	}
 }

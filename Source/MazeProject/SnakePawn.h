@@ -100,4 +100,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void EnableWallHit();
+
+	void ResetBodyPart();
 };

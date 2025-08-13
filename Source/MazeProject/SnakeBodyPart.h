@@ -45,4 +45,6 @@ public:
 	void SetDirection(Direction p_direction);
 
 	void GetNextSpawnLocation(FVector& p_SpawnLocation);
+
+	void SelfDestroy();
 };

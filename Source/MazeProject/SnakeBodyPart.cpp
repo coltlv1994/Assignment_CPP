@@ -144,3 +144,15 @@ void ASnakeBodyPart::GetNextSpawnLocation(FVector& p_SpawnLocation)
 		}
 	}
 }
+
+void ASnakeBodyPart::SelfDestroy()
+{
+	if (IsValid(nextBodyPart))
+	{
+		nextBodyPart->SelfDestroy();
+	}
+	else
+	{
+		Destroy();
+	}
+}

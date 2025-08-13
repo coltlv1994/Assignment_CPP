@@ -125,14 +125,16 @@ void ASnakePlayerController::ResetPawns()
 		m_snakePawn1->m_direction = Direction::None;
 		m_snakePawn1->m_nextDirection = Direction::None;
 		m_snakePawn1->currentScore = 0;
+		m_snakePawn1->ResetBodyPart();
 	}
 
 	if (IsValid(m_snakePawn2))
 	{
-		// same as snake pawn 2
+		// same as snake pawn 1
 		m_snakePawn2->SetActorLocation(FVector(100.0f, 100.0f, 0.0f)); // spawn location
 		m_snakePawn2->currentScore = 0;
 		m_snakePawn2->m_direction = Direction::None;
+		m_snakePawn2->ResetBodyPart();
 
 		if (m_snakePawn2->isAIControlled)
 		{

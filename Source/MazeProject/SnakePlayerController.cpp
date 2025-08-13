@@ -92,7 +92,19 @@ void ASnakePlayerController::NewAppleRoute(int xTile, int yTile)
 		int currentTileX, currentTileY;
 		m_snakePawn2->GetPawnTile(currentTileX, currentTileY);
 
-		m_aAsterikAlgorithm->FindPath(m_gridSize[0], m_gridSize[1], currentTileX, currentTileY, xTile, yTile, m_tileMapPointer);
+		int tailX, tailY;
+		Direction bodyPartDirection = Direction::None; // by default it has no body part
+		if (IsValid(m_snakePawn2->nextBodyPart))
+		{
+			// it has body part
+			FVector headLocation = m_snakePawn2->GetActorLocation();
+			FVector bodyPartLocation = m_snakePawn2->nextBodyPart->GetActorLocation();
+			
+			bodyPartDirection = m_snakePawn2->GetBodyPartTile(tailX, tailY);
+			UE_LOG(LogTemp, Warning, TEXT("Head: %f, %f; body: %f, %f, tile: %d, %d"), headLocation.X, headLocation.Y, bodyPartLocation.X, bodyPartLocation.Y, tailX, tailY);
+		}
+
+		m_aAsterikAlgorithm->FindPath(m_gridSize[0], m_gridSize[1], currentTileX, currentTileY, xTile, yTile, m_tileMapPointer, bodyPartDirection, tailX, tailY);
 
 		// read the route and convert to Tile*
 		std::vector<Tile*> pathToPawn;
@@ -256,13 +268,13 @@ void A_Asterik_Algorithm::UpdatePriorityQueue(std::vector<IndexDistanceTuple>& p
 		});
 }
 
-void A_Asterik_Algorithm::FindPath(int XTILES, int YTILES, int STARTX, int STARTY, int ENDX, int ENDY, std::map<int, TileProperty>* p_tileMapPointer)
+void A_Asterik_Algorithm::FindPath(int XTILES, int YTILES, int STARTX, int STARTY, int ENDX, int ENDY, std::map<int, TileProperty>* p_tileMapPointer, Direction p_tailDirection, int TAILX, int TAILY)
 {
 	using IndexDistanceTuple = std::tuple<int, float>;
 	std::map<int, TileProperty>& tileMap = *p_tileMapPointer;
 	const int endIndex = ENDX + XTILES * ENDY;
 
-	UE_LOG(LogTemp, Warning, TEXT("Pathfinding: to %d, %d, start: %d, %d"), ENDX, ENDY, STARTX, STARTY);
+	//UE_LOG(LogTemp, Warning, TEXT("Pathfinding: to %d, %d, start: %d, %d"), ENDX, ENDY, STARTX, STARTY);
 
 	GameMapInit(XTILES, YTILES, tileMap);
 
@@ -270,6 +282,13 @@ void A_Asterik_Algorithm::FindPath(int XTILES, int YTILES, int STARTX, int START
 
 	// set start point; it has shortest distance
 	m_gameMap[STARTX + STARTY * XTILES].m_distance = 0.0f;
+
+	// avoid the tail, if any
+	if (p_tailDirection != Direction::None)
+	{
+		int invalidTailTile = TAILX + TAILY * XTILES;
+		m_unoccupiedTiles.erase(std::remove(m_unoccupiedTiles.begin(), m_unoccupiedTiles.end(), invalidTailTile), m_unoccupiedTiles.end());
+	}
 
 	// constructing priority queue
 	// it only contains unoccupied tiles

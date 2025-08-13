@@ -6,6 +6,7 @@
 #include "Apple.h"
 #include "GameFramework/Pawn.h"
 #include "Components/SphereComponent.h"
+#include "SnakeBodyPart.h"
 #include "enum.h"
 #include <vector>
 #include "SnakePawn.generated.h"
@@ -26,6 +27,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	Direction m_direction = Direction::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ASnakeBodyPart> BodyPartClass;
+
+	ASnakeBodyPart* nextBodyPart = nullptr;
+
+	bool isWallCollisionEnabled = false;
 
 	// Sets default values for this pawn's properties
 	ASnakePawn();
@@ -85,4 +93,11 @@ public:
 	
 	const int maxScore = 3;
 
+	UFUNCTION(BlueprintCallable)
+	void HitWall();
+
+    Direction GetBodyPartTile(int& x, int& y);
+
+	UFUNCTION(BlueprintCallable)
+	void EnableWallHit();
 };

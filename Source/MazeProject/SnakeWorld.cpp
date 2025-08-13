@@ -128,7 +128,7 @@ void ASnakeWorld::NewAppleLocation(int& p_AppleX, int& p_AppleY)
 	m_gridMapPointer->SetTileProperty(p_AppleX, p_AppleY, TileProperty::Apple);
 	m_gridMapPointer->SetTileProperty(oldAppleTile / m_gridSize[1], oldAppleTile % m_gridSize[1], TileProperty::Space);
 
-	UE_LOG(LogTemp, Warning, TEXT("Apple location: %d, %d"), p_AppleX, p_AppleY);
+	//UE_LOG(LogTemp, Warning, TEXT("Apple location: %d, %d"), p_AppleX, p_AppleY);
 }
 
 void ASnakeWorld::HandleAppleEatenEvent(AApple* appleActor)

@@ -44,7 +44,7 @@ public:
 
 	void CalculateDistance(int ENDX, int ENDY);
 
-	void FindPath(int XTILES, int YTILES, int STARTX, int STARTY, int ENDX, int ENDY, std::map<int, TileProperty>* p_tileMapPointer);
+	void FindPath(int XTILES, int YTILES, int STARTX, int STARTY, int ENDX, int ENDY, std::map<int, TileProperty>* p_tileMapPointer, Direction p_tailDirection, int TAILX, int TAILY);
 
 	void UpdatePriorityQueue(std::vector<IndexDistanceTuple>& priorityQueue);
 };

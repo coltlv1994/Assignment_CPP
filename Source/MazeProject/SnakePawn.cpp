@@ -3,6 +3,7 @@
 
 #include "SnakePawn.h"
 #include "SnakeWorld.h"
+#include "Kismet/GameplayStatics.h"
 
 // Constants with math and physics
 constexpr float GRAV_ACCEL = -982.0f; // Gravitational acceleration
@@ -45,6 +46,8 @@ void ASnakePawn::Tick(float DeltaTime)
 		{
 			if (m_direction == Direction::None)
 			{
+				// Check apple location
+
 				// set new direction
 				// note: this list is in reverse order for performance concern
 				// we read and remove from last
@@ -87,6 +90,11 @@ void ASnakePawn::Tick(float DeltaTime)
 					m_direction = Direction::Left;
 					//return;
 				}
+
+				if (IsValid(nextBodyPart))
+				{
+					nextBodyPart->SetDirection(m_nextDirection); // read from AI cache
+				}
 			}
 		}
 	}
@@ -119,7 +127,36 @@ void ASnakePawn::SetDirection(Direction p_direction)
 	// AI pawn won't take input
 	if (isAIControlled == false)
 	{
-		m_nextDirection = p_direction;
+		Direction opposedDirection = Direction::None;
+		if (IsValid(nextBodyPart))
+		{
+			switch (m_direction)
+			{
+			case Direction::Right:
+				opposedDirection = Direction::Left;
+				break;
+			case Direction::Left:
+				opposedDirection = Direction::Right;
+				break;
+			case Direction::Up:
+				opposedDirection = Direction::Down;
+				break;
+			case Direction::Down:
+				opposedDirection = Direction::Up;
+				break;
+			default:
+				opposedDirection = Direction::None;
+			}
+		}
+
+		if (p_direction == opposedDirection)
+		{
+			return;
+		}
+		else
+		{
+			m_nextDirection = p_direction;
+		}
 	}
 }
 
@@ -179,11 +216,20 @@ void ASnakePawn::HandleGround(FVector& p_position, float p_deltaTime)
 		m_movedTileDistance = 0.0f;
 		if (!isAIControlled)
 		{
+			
+			// non-AI snake should set body part's direction here
+			if (IsValid(nextBodyPart))
+			{
+				// maintain the old direction
+				nextBodyPart->SetDirection(m_direction);
+			}
+
 			m_direction = m_nextDirection;
 		}
 		else
 		{
 			// AI has no direction cache; it will calculate in next tick
+			m_nextDirection = m_direction; // use it as a cache
 			m_direction = Direction::None;
 			if (!m_destinationTileList.empty())
 			{
@@ -207,7 +253,7 @@ void ASnakePawn::GetPawnTile(int& x, int& y)
 	FVector Position = GetActorLocation();
 	x = roundf(Position.X / 100.0f);
 	y = roundf(Position.Y / 100.0f);
-	UE_LOG(LogTemp, Warning, TEXT("GetPawnTile: posX %f, posY %f, direction=%d"), Position.X, Position.Y, m_direction);
+	//UE_LOG(LogTemp, Warning, TEXT("GetPawnTile: posX %f, posY %f, direction=%d"), Position.X, Position.Y, m_direction);
 }
 
 void ASnakePawn::SetAIControlled(bool p_isAIControlled)
@@ -227,6 +273,55 @@ void ASnakePawn::SetAIControlled(bool p_isAIControlled)
 void ASnakePawn::Score()
 {
 	//currentScore += 1; // for debug this can be disabled
+	// apple is eaten, handle new body part here
+	FVector spawnLocation = GetActorLocation();
+
+	if (IsValid(nextBodyPart))
+	{
+		nextBodyPart->GetNextSpawnLocation(spawnLocation);
+	}
+	else
+	{
+		// first body part
+		FVector rightVector = GetActorRightVector();
+		FVector forwardVector = GetActorForwardVector();
+
+		switch (m_direction)
+		{
+		case Direction::Right:
+			spawnLocation = spawnLocation + -100.0f * rightVector;
+			break;
+		case Direction::Up:
+			spawnLocation = spawnLocation + -100.0f * forwardVector;
+			break;
+		case Direction::Left:
+			spawnLocation = spawnLocation + 100.0f * rightVector;
+			break;
+		case Direction::Down:
+			spawnLocation = spawnLocation + 100.0f * forwardVector;
+			break;
+		default:
+			break;
+		}
+	}
+
+	ASnakeBodyPart* newBodyPart = GetWorld()->SpawnActor<ASnakeBodyPart>(BodyPartClass, spawnLocation, GetActorRotation(), FActorSpawnParameters());
+	// set body part status
+
+	if (IsValid(nextBodyPart))
+	{
+		// already has one
+		nextBodyPart->AddNextBodyPart(newBodyPart);
+	}
+	else
+	{
+		// the first one
+		nextBodyPart = newBodyPart;
+		nextBodyPart->m_speed = m_speed;
+		nextBodyPart->m_movedTileDistance = m_movedTileDistance;
+		nextBodyPart->m_direction = m_direction;
+	}
+
 	if (currentScore >= maxScore)
 	{
 		// next level
@@ -237,4 +332,36 @@ void ASnakePawn::Score()
 void ASnakePawn::SetWorldActor(ASnakeWorld* p_snakeWorld)
 {
 	m_snakeWorld = p_snakeWorld;
+}
+
+void ASnakePawn::HitWall()
+{
+	if (!isWallCollisionEnabled)
+	{
+		return;
+	}
+
+	// hit wall is instant death
+	UWorld* TheWorld = GetWorld();
+	UGameplayStatics::OpenLevel(TheWorld, "Outro");
+}
+
+Direction ASnakePawn::GetBodyPartTile(int& x, int& y)
+{
+	if (IsValid(nextBodyPart))
+	{
+		FVector Position = nextBodyPart->GetActorLocation();
+		x = roundf(Position.X / 100.0f);
+		y = roundf(Position.Y / 100.0f);
+		return Direction::Up;
+	}
+	else
+	{
+		return Direction::None;
+	}
+}
+
+void ASnakePawn::EnableWallHit()
+{
+	isWallCollisionEnabled = true;
 }

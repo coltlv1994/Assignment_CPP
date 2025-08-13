@@ -38,6 +38,7 @@ enum class SnakeMenuAction : uint8
 	StartPvPGame,
 	StartPvEGame,
 	QuitGame,
+	Replay,
 };
 
 UENUM(BlueprintType)

@@ -96,6 +96,15 @@ void ASnakePawn::Tick(float DeltaTime)
 				}
 			}
 		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AI Head: %s"), *GetActorLocation().ToString());
+			if (IsValid(nextBodyPart))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("AI tail: %s"), *(nextBodyPart->GetActorLocation().ToString()));
+			}
+			int tailX = 0;
+		}
 	}
 
 
@@ -272,7 +281,13 @@ void ASnakePawn::SetAIControlled(bool p_isAIControlled)
 
 void ASnakePawn::Score()
 {
-	//currentScore += 1; // for debug this can be disabled
+	currentScore += 1; 
+	if (currentScore >= maxScore)
+	{
+		// next level
+		m_snakeWorld->GoToNextLevel();
+	}
+
 	// apple is eaten, handle new body part here
 	FVector spawnLocation = GetActorLocation();
 
@@ -322,12 +337,6 @@ void ASnakePawn::Score()
 		nextBodyPart->m_speed = m_speed;
 		nextBodyPart->m_movedTileDistance = m_movedTileDistance;
 		nextBodyPart->m_direction = m_direction;
-	}
-
-	if (currentScore >= maxScore)
-	{
-		// next level
-		m_snakeWorld->GoToNextLevel();
 	}
 }
 

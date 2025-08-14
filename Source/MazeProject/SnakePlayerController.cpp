@@ -112,7 +112,7 @@ void ASnakePlayerController::NewAppleRoute(int xTile, int yTile)
 			break;
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("current: %d, %d, calibrated: %d, %d, m_direction: %d"), currentTileX, currentTileY, calibratedX, calibratedY, m_snakePawn2->m_direction);
+		UE_LOG(LogTemp, Warning, TEXT("Loc: %f, %f, current: %d, %d, calibrated: %d, %d, m_direction: %d"), pawn2Location.X, pawn2Location.Y, currentTileX, currentTileY, calibratedX, calibratedY, m_snakePawn2->m_direction);
 
 		Direction bodyPartDirection = Direction::None; // by default it has no body part
 		if (IsValid(m_snakePawn2->nextBodyPart))
@@ -360,15 +360,18 @@ void A_Asterik_Algorithm::FindPath(int XTILES, int YTILES, int STARTX, int START
 	m_foundPath.clear();
 	int tailIndex = endIndex;
 
+	// To fix a potential bug in this algorithm
+	// Sometimes the A* algorithm has certain alignment problem,
+	// which prevents the pawn from moving further toward the final destination.
+	// Two identical endpoint won't be a problem, as long as one is hit the apple,
+	// destination list will reset
+	m_foundPath.push_back(tailIndex);
+
 	while (tailIndex != -1)
 	{
 		m_foundPath.push_back(tailIndex);
 		tailIndex = m_gameMap[tailIndex].m_parent;
 	}
-
-	// push current node to destination
-	// floating point numbers have precision issue and it may cause unwanted bugs
-	//m_foundPath.push_back(STARTX + STARTY * XTILES);
 
 	// A* algorithm needs to reverse the path.
 	// But we store the path in a vector, performance-wise we should read and remove from the last

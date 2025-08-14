@@ -90,13 +90,10 @@ void ASnakePawn::Tick(float DeltaTime)
 
 				if (IsValid(nextBodyPart))
 				{
-					nextBodyPart->SetDirection(m_nextDirection); // read from AI cache
-				}
-			}
-			else
-			{
-				// destination ls empty
+					nextBodyPart->SetDirection(Position);
 
+					//nextBodyPart->SetDirection(m_nextDirection); // read from AI cache
+				}
 			}
 		}
 	}
@@ -223,7 +220,8 @@ void ASnakePawn::HandleGround(FVector& p_position, float p_deltaTime)
 			if (IsValid(nextBodyPart))
 			{
 				// maintain the old direction
-				nextBodyPart->SetDirection(m_direction);
+				nextBodyPart->SetDirection(p_position);
+				//nextBodyPart->SetDirection(m_direction);
 			}
 
 			m_direction = m_nextDirection;
@@ -305,6 +303,8 @@ void ASnakePawn::Score()
 		default:
 			break;
 		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Spawn: %f, %f, m_direction: %d"), spawnLocation.X, spawnLocation.Y, m_direction);
 	}
 
 	ASnakeBodyPart* newBodyPart = GetWorld()->SpawnActor<ASnakeBodyPart>(BodyPartClass, spawnLocation, GetActorRotation(), FActorSpawnParameters());
@@ -355,7 +355,7 @@ Direction ASnakePawn::GetBodyPartTile(int& x, int& y)
 		FVector Position = nextBodyPart->GetActorLocation();
 		x = roundf(Position.X / 100.0f);
 		y = roundf(Position.Y / 100.0f);
-		return Direction::Up;
+		return nextBodyPart->m_direction;
 	}
 	else
 	{

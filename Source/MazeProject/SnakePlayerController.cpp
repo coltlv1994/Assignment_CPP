@@ -89,22 +89,40 @@ void ASnakePlayerController::NewAppleRoute(int xTile, int yTile)
 		m_aAsterikAlgorithm->CalculateDistance(xTile, yTile);
 
 		// get pawn current tile
-		int currentTileX, currentTileY;
+		int currentTileX, currentTileY, calibratedX, calibratedY;
+		FVector pawn2Location = m_snakePawn2->GetActorLocation();
 		m_snakePawn2->GetPawnTile(currentTileX, currentTileY);
+		calibratedX = currentTileX;
+		calibratedY = currentTileY;
 
-		int tailX, tailY;
+		// calibrate the starting point of A*
+		switch (m_snakePawn2->m_direction)
+		{
+		case Direction::Down:
+			calibratedX -= 1;
+			break;
+		case Direction::Up:
+			calibratedX += 1;
+			break;
+		case Direction::Right:
+			calibratedY += 1;
+			break;
+		case Direction::Left:
+			calibratedY -= 1;
+			break;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("current: %d, %d, calibrated: %d, %d, m_direction: %d"), currentTileX, currentTileY, calibratedX, calibratedY, m_snakePawn2->m_direction);
+
 		Direction bodyPartDirection = Direction::None; // by default it has no body part
 		if (IsValid(m_snakePawn2->nextBodyPart))
 		{
 			// it has body part
-			FVector headLocation = m_snakePawn2->GetActorLocation();
-			FVector bodyPartLocation = m_snakePawn2->nextBodyPart->GetActorLocation();
-			
-			bodyPartDirection = m_snakePawn2->GetBodyPartTile(tailX, tailY);
-			UE_LOG(LogTemp, Warning, TEXT("Head: %f, %f; body: %f, %f, tile: %d, %d"), headLocation.X, headLocation.Y, bodyPartLocation.X, bodyPartLocation.Y, tailX, tailY);
+			// tail will guarantee to take current tile of head
+			bodyPartDirection = Direction::Up;
 		}
 
-		m_aAsterikAlgorithm->FindPath(m_gridSize[0], m_gridSize[1], currentTileX, currentTileY, xTile, yTile, m_tileMapPointer, bodyPartDirection, tailX, tailY);
+		m_aAsterikAlgorithm->FindPath(m_gridSize[0], m_gridSize[1], calibratedX, calibratedY, xTile, yTile, m_tileMapPointer, bodyPartDirection, currentTileX, currentTileY);
 
 		// read the route and convert to Tile*
 		std::vector<Tile*> pathToPawn;
@@ -143,7 +161,7 @@ void ASnakePlayerController::ResetPawns()
 			//additionally if AI controller, re - trigger apple event
 			int appleTile = (int)(snakeWorld->GetAppleTile());
 			GetGridSize();
-			
+
 			// clean old game map and force a reconstruct
 			m_aAsterikAlgorithm->m_gameMap.clear();
 			m_aAsterikAlgorithm->GameMapInit(m_gridSize[0], m_gridSize[1], *m_tileMapPointer);
@@ -276,7 +294,7 @@ void A_Asterik_Algorithm::FindPath(int XTILES, int YTILES, int STARTX, int START
 	std::map<int, TileProperty>& tileMap = *p_tileMapPointer;
 	const int endIndex = ENDX + XTILES * ENDY;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Pathfinding: to %d, %d, start: %d, %d"), ENDX, ENDY, STARTX, STARTY);
+	UE_LOG(LogTemp, Warning, TEXT("Pathfinding: to %d, %d, start: %d, %d"), ENDX, ENDY, STARTX, STARTY);
 
 	GameMapInit(XTILES, YTILES, tileMap);
 
@@ -350,7 +368,7 @@ void A_Asterik_Algorithm::FindPath(int XTILES, int YTILES, int STARTX, int START
 
 	// push current node to destination
 	// floating point numbers have precision issue and it may cause unwanted bugs
-	m_foundPath.push_back(STARTX + STARTY * XTILES);
+	//m_foundPath.push_back(STARTX + STARTY * XTILES);
 
 	// A* algorithm needs to reverse the path.
 	// But we store the path in a vector, performance-wise we should read and remove from the last

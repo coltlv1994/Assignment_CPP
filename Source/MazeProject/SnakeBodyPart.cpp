@@ -3,6 +3,11 @@
 
 #include "SnakeBodyPart.h"
 
+constexpr double FOURTY_FIVE_IN_RAD = 0.78539816339;
+constexpr double NINETY_IN_RAD = 1.57079632679;
+constexpr double ONE_THIRTY_FIVE_IN_RAD = 2.35619449019;
+constexpr double ONE_EIGHTY_IN_RAD = 3.14159265359;
+
 // Sets default values
 ASnakeBodyPart::ASnakeBodyPart()
 {
@@ -142,6 +147,8 @@ void ASnakeBodyPart::GetNextSpawnLocation(FVector& p_SpawnLocation)
 		default:
 			break;
 		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Spawn: %f, %f, m_direction: %d"), p_SpawnLocation.X, p_SpawnLocation.Y, m_direction);
 	}
 }
 
@@ -155,4 +162,79 @@ void ASnakeBodyPart::SelfDestroy()
 	{
 		Destroy();
 	}
+}
+
+void ASnakeBodyPart::SetDirection(FVector targetLocation)
+{
+	FVector selfLocation = GetActorLocation();
+	//UE_LOG(LogTemp, Warning, TEXT("%s, selfLocation: %f, %f, targetLocation: %f, %f"), *GetName(), selfLocation.X, selfLocation.Y, targetLocation.X, targetLocation.Y)
+	if (IsValid(nextBodyPart))
+	{
+		// recursion
+		nextBodyPart->SetDirection(selfLocation);
+	}
+
+	FVector diffVec = targetLocation - selfLocation;
+	diffVec.Z = 0;
+	double mag = diffVec.Size();
+
+	if (mag < 20.0f)
+	{
+		m_direction = Direction::None;
+		return;
+	}
+
+	diffVec = diffVec / mag;
+	double alpha = FMath::Atan2(diffVec.Y, diffVec.X);
+
+	if (alpha >= FOURTY_FIVE_IN_RAD)
+	{
+		if (alpha >= ONE_THIRTY_FIVE_IN_RAD)
+		{
+			m_direction = Direction::Down;
+		}
+		else
+		{
+			m_direction = Direction::Right;
+		}
+	}
+	else
+	{
+		if (alpha <= -1.0 * FOURTY_FIVE_IN_RAD)
+		{
+			if (alpha <= -1.0 * ONE_THIRTY_FIVE_IN_RAD)
+			{
+				m_direction = Direction::Down;
+			}
+			else
+			{
+				m_direction = Direction::Left;
+			}
+		}
+		else
+		{
+			m_direction = Direction::Up;
+		}
+	}
+
+	//if (diffVec.Y > 5.0)
+	//{
+	//	m_direction = Direction::Right;
+	//}
+	//else if (diffVec.Y < -5.0)
+	//{
+	//	m_direction = Direction::Left;
+	//}
+	//else if (diffVec.X > 5.0)
+	//{
+	//	m_direction = Direction::Up;
+	//}
+	//else if (diffVec.X < -5.0)
+	//{
+	//	m_direction = Direction::Down;
+	//}
+	//else
+	//{
+	//	m_direction = Direction::None;
+	//}
 }

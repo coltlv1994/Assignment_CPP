@@ -139,7 +139,7 @@ void ASnakePlayerController::ResetPawns()
 	{
 		// reset score and transform, clean destination list, remove direction,
 		// pawn 1 is always human-controlled.
-		m_snakePawn1->SetActorLocation(FVector(100.0f, 100.0f, 0.0f)); // spawn location
+		m_snakePawn1->SetActorLocation(FVector(200.0f, 200.0f, 0.0f)); // spawn location
 		m_snakePawn1->m_direction = Direction::None;
 		m_snakePawn1->m_nextDirection = Direction::None;
 		m_snakePawn1->currentScore = 0;
@@ -149,10 +149,12 @@ void ASnakePlayerController::ResetPawns()
 	if (IsValid(m_snakePawn2))
 	{
 		// same as snake pawn 1
-		m_snakePawn2->SetActorLocation(FVector(100.0f, 100.0f, 0.0f)); // spawn location
+		m_snakePawn2->SetActorLocation(FVector(500.0f, 500.0f, 0.0f)); // spawn location
 		m_snakePawn2->currentScore = 0;
 		m_snakePawn2->m_direction = Direction::None;
 		m_snakePawn2->ResetBodyPart();
+
+		SetPlayersScore();
 
 		if (m_snakePawn2->isAIControlled)
 		{
@@ -377,4 +379,11 @@ void A_Asterik_Algorithm::FindPath(int XTILES, int YTILES, int STARTX, int START
 	// But we store the path in a vector, performance-wise we should read and remove from the last
 	// it looks like: end -> waynode_n -> waynode_(n-1) -> ... -> start -> (an additional start to make sure this does not bug)
 	//std::reverse(m_foundPath.begin(), m_foundPath.end());
+}
+
+void ASnakePlayerController::SetPlayersScore()
+{
+	// update score
+	static UGameStateSubsystem* gssPtr = GetWorld()->GetGameInstance()->GetSubsystem<UGameStateSubsystem>();
+	gssPtr->SetPlayerScores(m_snakePawn1->currentScore, m_snakePawn2->currentScore);
 }

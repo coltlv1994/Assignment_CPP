@@ -91,6 +91,7 @@ void ASnakeWorld::ConstructWalls(void)
 				MySubsystemPtr->SetGridMap(m_gridMapPointer);
 			}
 		}
+		return;
 	}
 	else
 	{
@@ -173,8 +174,9 @@ void ASnakeWorld::GoToNextLevel()
 
 	// reset must be called after wall re-construction since it relies on new tile map to reset A*-algorithm
 	// call controller, reset pawns
-	if (nextLevel != 1 && IsValid(controllerRef))
+	if (nextLevel < 3 && IsValid(controllerRef))
 	{
 		controllerRef->ResetPawns();
 	}
+
 }

@@ -108,4 +108,7 @@ public:
 	bool isPlayer2Initialized = false;
 
 	void ResetPawns();
+
+	UFUNCTION(BlueprintCallable)
+	void SetPlayersScore();
 };

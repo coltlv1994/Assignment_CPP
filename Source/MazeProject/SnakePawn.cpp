@@ -4,6 +4,7 @@
 #include "SnakePawn.h"
 #include "SnakeWorld.h"
 #include "Kismet/GameplayStatics.h"
+#include "SnakePlayerController.h"
 
 // Constants with math and physics
 constexpr float GRAV_ACCEL = -982.0f; // Gravitational acceleration
@@ -281,11 +282,14 @@ void ASnakePawn::SetAIControlled(bool p_isAIControlled)
 
 void ASnakePawn::Score()
 {
+	static UGameStateSubsystem* gssPtr = GetWorld()->GetGameInstance()->GetSubsystem<UGameStateSubsystem>();
+
 	currentScore += 1; 
 	if (currentScore >= maxScore)
 	{
 		// next level
 		m_snakeWorld->GoToNextLevel();
+		return;
 	}
 
 	// apple is eaten, handle new body part here
@@ -355,6 +359,9 @@ void ASnakePawn::HitWall()
 	// hit wall is instant death
 	UWorld* TheWorld = GetWorld();
 	UGameplayStatics::OpenLevel(TheWorld, "Outro");
+
+	//ASnakePlayerController* controllerRef = (ASnakePlayerController*)GetController();
+	//controllerRef->SetPlayersScore();
 }
 
 Direction ASnakePawn::GetBodyPartTile(int& x, int& y)
@@ -382,9 +389,11 @@ void ASnakePawn::ResetBodyPart()
 	if (IsValid(nextBodyPart))
 	{
 		nextBodyPart->SelfDestroy();
+		//nextBodyPart->Destroy();
+		nextBodyPart = nullptr;
 	}
 	else
 	{
-		nextBodyPart->Destroy();
+		//nextBodyPart->Destroy();
 	}
 }

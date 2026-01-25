@@ -158,10 +158,8 @@ void ASnakeBodyPart::SelfDestroy()
 	{
 		nextBodyPart->SelfDestroy();
 	}
-	else
-	{
-		Destroy();
-	}
+
+	Destroy();
 }
 
 void ASnakeBodyPart::SetDirection(FVector targetLocation)

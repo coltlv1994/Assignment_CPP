@@ -59,3 +59,19 @@ void UGameStateSubsystem::GoToNextLevel()
 {
 	nextLevel += 1;
 }
+
+int UGameStateSubsystem::GetPlayer1Score()
+{
+	return player1Score;
+}
+
+int UGameStateSubsystem::GetPlayer2Score()
+{
+	return player2Score;
+}
+
+void UGameStateSubsystem::SetPlayerScores(int p_p1Score, int p_p2Score)
+{
+	player1Score = p_p1Score;
+	player2Score = p_p2Score;
+}

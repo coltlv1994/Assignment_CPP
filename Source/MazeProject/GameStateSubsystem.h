@@ -58,7 +58,20 @@ public:
 
 	int nextLevel = 1;
 
+	int player1Score = 0;
+	int player2Score = 0;
+
 	UFUNCTION(BlueprintCallable)
 	void GoToNextLevel();
+
+	UFUNCTION(BlueprintCallable)
+	int GetPlayer1Score();
+
+	UFUNCTION(BlueprintCallable)
+	int GetPlayer2Score();
+
+
+	UFUNCTION(BlueprintCallable)
+	void SetPlayerScores(int p_p1Score, int p_p2Score);
 	
 };

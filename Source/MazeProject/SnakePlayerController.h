@@ -111,4 +111,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetPlayersScore();
+
+	void AvoidCollisions();
 };

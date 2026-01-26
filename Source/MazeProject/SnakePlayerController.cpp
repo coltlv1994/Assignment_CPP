@@ -154,7 +154,8 @@ void ASnakePlayerController::ResetPawns()
 		m_snakePawn2->m_direction = Direction::None;
 		m_snakePawn2->ResetBodyPart();
 
-		SetPlayersScore();
+		isPlayer2Initialized = false;
+		m_snakePawn2->SetActorTickEnabled(false);
 
 		if (m_snakePawn2->isAIControlled)
 		{
@@ -386,4 +387,18 @@ void ASnakePlayerController::SetPlayersScore()
 	// update score
 	static UGameStateSubsystem* gssPtr = GetWorld()->GetGameInstance()->GetSubsystem<UGameStateSubsystem>();
 	gssPtr->SetPlayerScores(m_snakePawn1->currentScore, m_snakePawn2->currentScore);
+}
+
+void ASnakePlayerController::AvoidCollisions()
+{
+	if (IsValid(m_snakePawn1))
+	{
+		m_snakePawn1->SetActorLocation(FVector(200.0f, 200.0f, -100.0f));
+	}
+
+	if (IsValid(m_snakePawn2))
+	{
+		m_snakePawn2->SetActorLocation(FVector(500.0f, 500.0f, -100.0f));
+	}
+
 }

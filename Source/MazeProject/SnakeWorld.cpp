@@ -170,11 +170,17 @@ void ASnakeWorld::TranslateTileIndexToTiles(std::vector<int> &tileIndexVector, s
 void ASnakeWorld::GoToNextLevel()
 {
 	nextLevel += 1;
+	if (IsValid(controllerRef))
+	{
+		controllerRef->AvoidCollisions();
+		controllerRef->SetPlayersScore();
+	}
+
 	ConstructWalls();
 
 	// reset must be called after wall re-construction since it relies on new tile map to reset A*-algorithm
 	// call controller, reset pawns
-	if (nextLevel < 3 && IsValid(controllerRef))
+	if (nextLevel <= 3 && IsValid(controllerRef))
 	{
 		controllerRef->ResetPawns();
 	}
